@@ -1,0 +1,715 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<!-- 
+    =======================================================================
+    PROJECT: The Highlands Weekender
+    VERSION: A dual-mode interactive newsletter. 
+    
+    LOGIC:
+    - HAS_EVENTS_THIS_WEEKEND: 
+        - If FALSE: Page starts at "The Gentle Reset" (Evergreen). No back button.
+        - If TRUE: Page starts at "Events". Discovery portal is at the BOTTOM.
+    
+    STYLE NOTES:
+    - Earthy tones (Forest Green, Cream, Gold).
+    - Premium typography (Playfair Display & Inter).
+    - Bento-box grid layout for scannability.
+    =======================================================================
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Highlands Weekender</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* BRAND COLOR PALETTE */
+            --forest: #013220;    /* Background & Main Brand */
+            --cream: #FFFDD0;     /* Paper / Card Background */
+            --gold: #c5a059;      /* Accent & Actions */
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --warm-glow: rgba(197, 160, 89, 0.15);
+            --divider: rgba(255, 253, 208, 0.15);
+        }
+
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+
+        body {
+            background-color: var(--forest);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 15px 15px 60px 15px;
+            display: flex;
+            justify-content: center;
+            color: var(--forest);
+            line-height: 1.5;
+        }
+
+
+        .newsletter-container {
+            max-width: 420px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+
+        /* HEADER */
+        .masthead {
+            display: flex;
+            flex-direction: column;
+            padding: 15px 5px 10px;
+            color: var(--cream);
+            gap: 8px;
+        }
+
+
+        .masthead h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 44px;
+            margin: 0;
+            line-height: 0.9;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+        }
+
+
+        .masthead .date-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--divider);
+            padding-top: 12px;
+            margin-top: 5px;
+        }
+
+
+        .masthead .date { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; }
+
+
+        /* HERO CARD */
+        #hero-slot {
+            height: 400px;
+            border-radius: 32px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 28px;
+            color: var(--white);
+            text-decoration: none;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .hero-badge { position: absolute; top: 24px; left: 28px; background: var(--gold); color: var(--forest); padding: 5px 12px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+
+
+        .hero-timeline {
+            margin-top: 15px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            padding: 4px 10px;
+            border-radius: 6px;
+            width: fit-content;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+
+        /* BENTO TILES */
+        .section-header-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; padding: 0 5px; }
+        .section-label { color: var(--cream); font-family: 'Playfair Display', serif; font-style: italic; font-size: 24px; margin: 0; }
+        .chapter-view-more { color: var(--gold); font-size: 11px; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 4px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); }
+
+
+        .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .tile {
+            background: var(--cream);
+            border-radius: 28px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 170px;
+            text-decoration: none;
+            color: var(--forest);
+            box-shadow: var(--shadow);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .tile:active { transform: scale(0.97); }
+        .tile-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.85)); color: white; display: flex; flex-direction: column; gap: 4px; }
+        .tile h4 { font-family: 'Playfair Display', serif; font-size: 19px; margin: 0; line-height: 1.2; }
+        .tile p { margin: 0; font-size: 12px; font-weight: 500; opacity: 0.8; }
+
+
+        .tile-timeline { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 10px; color: var(--gold); display: flex; align-items: center; gap: 4px; }
+
+
+        /* GENTLE RESET INTRO */
+        .evergreen-intro {
+            background: var(--warm-glow);
+            padding: 40px 25px;
+            border-radius: 35px;
+            border: 1px solid rgba(255, 253, 208, 0.1);
+            text-align: center;
+            color: var(--cream);
+            margin-bottom: 10px;
+        }
+        .evergreen-intro h2 { font-family: 'Playfair Display', serif; font-size: 34px; font-style: italic; margin: 0; line-height: 1.1; }
+        .evergreen-intro p { font-size: 15px; opacity: 0.8; margin: 15px 0 0 0; }
+
+
+        /* PORTAL BUTTON */
+        .portal-btn {
+            background: rgba(255, 253, 208, 0.05);
+            border: 1px solid var(--gold);
+            padding: 40px 25px;
+            border-radius: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .portal-btn:active { background: rgba(197, 160, 89, 0.15); transform: scale(0.98); }
+        .portal-btn p { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin: 0 0 10px 0; }
+        .portal-btn h3 { font-family: 'Playfair Display', serif; font-size: 32px; margin: 0; font-style: italic; color: var(--cream); line-height: 1; }
+        .portal-btn .arrow-icon { margin-top: 15px; display: inline-block; font-size: 18px; color: var(--gold); }
+
+
+        /* SUBSCRIBE PROMPT */
+        .signup-card {
+            background: var(--warm-glow);
+            border-radius: 32px;
+            padding: 40px 25px;
+            text-align: center;
+            color: var(--cream);
+            border: 1px dashed rgba(197, 160, 89, 0.3);
+            margin-top: 10px;
+        }
+        .signup-card h4 { font-family: 'Playfair Display', serif; font-size: 28px; margin: 0; font-style: italic; }
+        .signup-card p { font-size: 14px; opacity: 0.8; margin: 10px 0 20px 0; }
+        .signup-input-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .signup-input {
+            background: rgba(255, 253, 208, 0.05);
+            border: 1px solid rgba(255, 253, 208, 0.2);
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+        .signup-btn {
+            background: var(--gold);
+            color: var(--forest);
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            cursor: pointer;
+        }
+
+
+        /* BACK BUTTON */
+        #back-to-events-btn {
+            display: none; 
+            align-self: flex-start;
+            background: var(--gold);
+            color: var(--forest);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            border: none;
+        }
+
+
+        /* INSIDER SPONSOR */
+        #insider-slot { background: linear-gradient(135deg, var(--gold) 0%, #b38d45 100%); border-radius: 28px; padding: 25px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; box-shadow: var(--shadow); cursor: pointer; }
+        .insider-info p { color: var(--forest); font-size: 18px; margin: 0; font-weight: 700; font-family: 'Playfair Display', serif; }
+        .insider-tag { background: var(--forest); color: var(--cream); font-size: 10px; padding: 10px 16px; border-radius: 14px; font-weight: 800; text-transform: uppercase; }
+
+
+        /* DIARY / UTILITY */
+        .diary-section { margin-top: 10px; padding-top: 25px; border-top: 1px solid var(--divider); display: flex; flex-direction: column; gap: 16px; }
+        .diary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .util-btn { background: var(--cream); border-radius: 24px; padding: 25px 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--forest); text-align: center; border: 1px solid rgba(197, 160, 89, 0.2); cursor: pointer; }
+        .util-btn span { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; }
+
+
+        /* FORECAST */
+        .forecast-section { margin-top: 10px; padding-top: 25px; border-top: 1px solid var(--divider); display: flex; flex-direction: column; gap: 16px; }
+        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .weather-tile { background: rgba(255, 253, 208, 0.08); border-radius: 24px; padding: 20px; color: var(--cream); min-height: 140px; border: 1px solid rgba(255, 253, 208, 0.1); }
+        .temp-val { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900; }
+
+
+        /* PATRONAGE SECTION */
+        .patronage-section { 
+            margin-top: 20px; 
+            padding-top: 30px; 
+            border-top: 1px solid var(--divider); 
+            text-align: center; 
+        }
+        .patronage-btn { background: rgba(255, 253, 208, 0.03); border: 1px solid rgba(255, 253, 208, 0.1); color: var(--cream); padding: 35px 25px; border-radius: 28px; display: block; text-decoration: none; cursor: pointer; }
+        .patronage-btn h6 { margin: 0; font-family: 'Playfair Display', serif; font-size: 22px; font-style: italic; color: var(--gold); }
+        .patronage-btn p { margin: 12px 0 0 0; font-size: 11px; opacity: 0.6; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; line-height: 1.4; }
+
+
+        /* FOOTER DIVIDERS 
+           Added smart padding and border-top for visual separation 
+        */
+        .section-divider {
+            border-top: 1px solid var(--divider);
+            margin-top: 15px;
+            padding-top: 15px;
+        }
+
+
+        /* FOOTER & PREFERENCES */
+        .footer-wrap { padding: 40px 0 50px; text-align: center; color: var(--cream); border-top: 1px solid var(--divider); }
+        .footer-brand { font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic; opacity: 0.6; margin-bottom: 10px; }
+        .footer-meta { font-size: 9px; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase; margin-bottom: 20px; }
+        .preference-link { color: var(--gold); font-size: 11px; font-weight: 700; text-decoration: underline; cursor: pointer; opacity: 0.7; }
+
+
+        /* MODAL */
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--cream); z-index: 2000; display: none; flex-direction: column; padding: 30px 25px; overflow-y: auto; }
+        .modal-close { font-weight: 800; font-size: 11px; text-transform: uppercase; margin-bottom: 25px; cursor: pointer; color: var(--gold); }
+        .modal h2 { font-family: 'Playfair Display', serif; font-size: 40px; margin: 0; color: var(--forest); line-height: 1.1; }
+        .see-more-btn { display: block; background: var(--forest); color: var(--cream); padding: 20px; border-radius: 18px; text-align: center; font-weight: 800; font-size: 14px; text-transform: uppercase; text-decoration: none; margin-top: auto; }
+
+
+        /* View State Logic */
+        #events-view, #evergreen-view { display: none; flex-direction: column; gap: 24px; }
+        #events-view.active, #evergreen-view.active { display: flex; }
+
+
+    </style>
+</head>
+<body>
+
+
+    <div class="newsletter-container">
+        <!-- BRAND HEADER -->
+        <header class="masthead">
+            <h1>The Highlands Weekender</h1>
+            <div class="date-bar">
+                <div class="date" id="display-date">JAN 10—11, 2026</div>
+                <div class="date" style="opacity: 0.6;" id="display-vol">VOL. 1</div>
+            </div>
+        </header>
+
+
+        <!-- VIEW: EVENT LINEUP -->
+        <main id="events-view">
+            <!-- Hero Spotlight -->
+            <div id="hero-slot">
+                <div class="hero-badge">Feature</div>
+                <h3 id="hero-title"></h3>
+                <p id="hero-desc"></p>
+                <div id="hero-timeline-marker" class="hero-timeline"></div>
+            </div>
+
+
+            <!-- Bento Shortlist -->
+            <div class="section-label">The Weekend Shortlist</div>
+            <div class="bento-grid" id="event-grid-hook"></div>
+        </main>
+
+
+        <!-- VIEW: THE GENTLE RESET (Evergreen Guide) -->
+        <main id="evergreen-view">
+            <button id="back-to-events-btn" onclick="switchView('events')">← Back to Weekend Lineup</button>
+            
+            <div class="evergreen-intro">
+                <h2 id="evergreen-title">The Gentle Reset.</h2>
+                <p id="evergreen-body">Scheduled events or not, the Highlands are always open. Explore the local staples.</p>
+            </div>
+
+
+            <!-- Categories Rendered via JS -->
+            <div id="evergreen-chapters-hook" class="newsletter-container" style="gap: 32px; padding: 0;"></div>
+        </main>
+
+
+        <!-- INSIDER PICK -->
+        <div id="insider-slot">
+            <div class="insider-info">
+                <h5 style="font-size:9px; text-transform:uppercase; letter-spacing:1px; color:rgba(0,0,0,0.4); font-weight:800;">Insider Pick</h5>
+                <p id="insider-name"></p>
+            </div>
+            <div class="insider-tag" id="insider-action">Book →</div>
+        </div>
+
+
+        <!-- SOCIAL DIARY -->
+        <div class="diary-section">
+            <div class="section-label">The Social Diary</div>
+            <div class="diary-grid">
+                <div class="util-btn" id="market-btn">
+                    <div style="font-size: 24px;">🧺</div>
+                    <span>Market<br>Schedules</span>
+                </div>
+                <div class="util-btn" id="horizon-btn" style="background: var(--gold); border: none;">
+                    <div style="font-size: 24px;">🗓️</div>
+                    <span>The Forward<br>Slate</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- THE FORECAST -->
+        <div class="forecast-section">
+            <div class="section-label">The Forecast</div>
+            <div class="weather-grid" id="weather-area">
+                <div class="weather-tile" id="weatherSat">
+                    <div class="day-label" id="labelSat">SAT • JAN 10</div>
+                    <div class="temp-row"><span class="temp-val">--°</span><span style="font-size:24px">⏳</span></div>
+                    <div class="vibe-note">Syncing...</div>
+                </div>
+                <div class="weather-tile" id="weatherSun">
+                    <div class="day-label" id="labelSun">SUN • JAN 11</div>
+                    <div class="temp-row"><span class="temp-val">--°</span><span style="font-size:24px">⏳</span></div>
+                    <div class="vibe-note">Syncing...</div>
+                </div>
+            </div>
+            <div class="weather-location" style="text-align: center; color: var(--gold); font-size: 10px; font-weight: 800; letter-spacing: 2px; margin-top: 5px;">BOWRAL, NSW</div>
+        </div>
+
+
+        <!-- THE PATRONAGE (The neighborhood support section) -->
+        <div class="patronage-section">
+            <div class="patronage-btn" id="patronage-slot">
+                <h6>The Patronage</h6>
+                <p>Meet the neighborhood heavy-hitters<br>keeping our Highlands stories alive</p>
+            </div>
+        </div>
+
+
+        <!-- PORTAL TO RESET (Discovery portal with divider) -->
+        <div class="section-divider">
+            <div id="discovery-portal" class="portal-btn" onclick="switchView('evergreen')">
+                <p>Looking for more local gems?</p>
+                <h3>The Gentle Reset</h3>
+                <div class="arrow-icon">⟶</div>
+            </div>
+        </div>
+
+
+        <!-- INNER CIRCLE SIGNUP (Subscription with divider) -->
+        <div class="section-divider">
+            <div class="signup-card">
+                <h4>Join the Inner Circle</h4>
+                <p>The weekly Highlands briefing. Delivered every Friday at 7 AM. Join 2,500+ locals.</p>
+                <div class="signup-input-wrap">
+                    <input type="email" class="signup-input" placeholder="Your best email...">
+                    <button class="signup-btn" onclick="handleSignup()">Count me in</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- FOOTER -->
+        <footer class="footer-wrap">
+            <div class="footer-brand">The Highlands Weekender</div>
+            <div class="footer-meta">ABN 12 345 678 901 &copy; 2026</div>
+            <div class="preference-link" onclick="openPreferences()">Unsubscribe / Manage Preferences</div>
+        </footer>
+    </div>
+
+
+    <!-- MAIN DETAIL MODAL -->
+    <div id="detailModal" class="modal">
+        <div class="modal-close" onclick="closeDetail()">← Back to the Feed</div>
+        <div id="modalContent">
+            <div class="meta-tag" id="modalMeta"></div>
+            <h2 id="modalTitle"></h2>
+            <div class="info-grid">
+                <div class="info-item"><label>When</label><span id="modalDate"></span></div>
+                <div class="info-item"><label>Time</label><span id="modalTime"></span></div>
+                <div class="info-item"><label>Where</label><span id="modalLoc"></span></div>
+                <div class="info-item"><label>Access</label><span id="modalAccess">Public</span></div>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="need-to-know"><h4>Essential Info</h4><ul id="modalKnow"></ul></div>
+            <a href="#" id="modalLink" class="see-more-btn" target="_blank">See More</a>
+        </div>
+    </div>
+
+
+    <!-- PREFERENCES MODAL -->
+    <div id="prefModal" class="modal" style="background: var(--cream);">
+        <div class="modal-close" onclick="closePreferences()">← Back to the Feed</div>
+        <h2>Manage your preferences.</h2>
+        <p style="margin-top: 10px; opacity: 0.7;">Select how you'd like to hear from the Weekender team.</p>
+        
+        <div class="pref-group">
+            <div class="pref-item">
+                <div>
+                    <label>Email Dispatch</label>
+                    <span>The weekly Friday briefing.</span>
+                </div>
+                <input type="checkbox" class="toggle-input" checked>
+            </div>
+            <div class="pref-item">
+                <div>
+                    <label>SMS Alerts</label>
+                    <span>High-energy alerts for major events.</span>
+                </div>
+                <input type="checkbox" class="toggle-input">
+            </div>
+            <div class="pref-item">
+                <div>
+                    <label>Web Notifications</label>
+                    <span>Browser alerts for real-time updates.</span>
+                </div>
+                <input type="checkbox" class="toggle-input">
+            </div>
+        </div>
+        
+        <p style="font-size: 11px; opacity: 0.5; margin-bottom: 25px;">To stop receiving all communication, simply turn off all toggles and click update.</p>
+        <button class="see-more-btn" onclick="savePrefs()">Update Preferences</button>
+    </div>
+
+
+    <script>
+        /* ====================================================================
+           SCENARIO CONTROL
+           ====================================================================
+        */
+        const HAS_EVENTS_THIS_WEEKEND = true; 
+
+
+        /* ====================================================================
+           "THE GENTLE RESET" - PERMANENT CATEGORIES
+           ====================================================================
+        */
+        const RESET_CHAPTERS = [
+            {
+                label: "The Trail Map", moreUrl: "#",
+                shortlist: [
+                    { title: "Box Vale Track", summary: "High Energy Hike", dateLabel: "Daily Habit", image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=600&auto=format&fit=crop", body: "Walk through abandoned railway tunnels and high sandstone tunnels.", date: "Daily", loc: "Mittagong", know: ["3 Hour Round Trip", "Bring a torch"], url: "#" },
+                    { title: "Belmore Falls", summary: "The Viewpoint", dateLabel: "Daily Habit", image: "https://images.unsplash.com/photo-1500382017468-9049fee74a62?q=80&w=600&auto=format&fit=crop", body: "Watch the water plunge over the sandstone cliffs.", date: "Daily", loc: "Wildes Meadow", know: ["Easy 20min walk"], url: "#" }
+                ]
+            },
+            {
+                label: "The Icons", moreUrl: "#",
+                shortlist: [
+                    { title: "Mt Gibraltar", summary: "The Summit", dateLabel: "Always Open", icon: "⛰️", color: "var(--gold)", body: "Spectacular views of the rolling plains.", date: "Anytime", loc: "Bowral", know: ["Accessible by car"], url: "#" },
+                    { title: "Berrima Village", summary: "Historic Heart", dateLabel: "Daily Habit", icon: "🏛️", color: "var(--warm-glow)", body: "Australia's best-preserved Georgian village.", date: "Daily", loc: "Berrima", know: ["Gaol tours available"], url: "#" }
+                ]
+            }
+        ];
+
+
+        /* ====================================================================
+           UNIVERSAL CONFIG
+           ====================================================================
+        */
+        const CONFIG = {
+            dates: "JAN 10—11, 2026", 
+            vol: "VOL. 1", 
+            satDate: "SAT • JAN 10", 
+            sunDate: "SUN • JAN 11",
+            insider: { name: "Osborn House: Summer Retreat", action: "Book →", body: "Relax by the pool with cocktails.", date: "Season", loc: "Bundanoon", know: ["Heated pool"], url: "#" },
+            diary: {
+                markets: { body: "Find the best local produce this weekend.", know: ["Moss Vale: Sat", "Bowral: Sun"], url: "#" },
+                horizon: { body: "Coming Up: Feb Music Fest, March Potato Fest.", know: ["Save the dates!"], url: "#" }
+            },
+            patronage: { body: "Meet the brands & individuals backing the weekender.", know: ["Southern Craft Electric", "Highlands Landscaping", "The Berrima Collective"], url: "#" }
+        };
+
+
+        /* ====================================================================
+           WEEKLY EVENT DATA
+           ====================================================================
+        */
+        const EVENT_DATA = {
+            hero: {
+                title: "Centennial Jazz",
+                shortDesc: "Live brass, woodfire pizza & cool-climate Pinot Noir in the vines.",
+                dateLabel: "This Weekend", 
+                fullBody: "Our signature summer series returns to Centennial Vineyards.",
+                image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1000&auto=format&fit=crop",
+                date: "Sat 10th & Sun 11th", time: "12pm - 4pm", loc: "Bowral",
+                know: ["Free lawn seating", "Book terrace"], url: "#"
+            },
+            shortlist: [
+                { title: "Gin Pop-up", summary: "Berrima Late Night", dateLabel: "Friday Only", icon: "🍸", color: "var(--gold)", body: "Cellar door specials.", date: "Friday", loc: "Berrima", know: ["21+ Only"], url: "#" },
+                { title: "Art Trail", summary: "12 Private Studios", dateLabel: "Saturday Only", icon: "🎨", color: "#f2f0e4", body: "Meet local artists in their studios.", date: "Saturday", loc: "Regional", know: ["Self-guided"], url: "#" }
+            ]
+        };
+
+
+        const apiKey = ""; 
+        const model = "gemini-2.5-flash-preview-09-2025";
+
+
+        function initApp() {
+            document.getElementById('display-date').innerText = CONFIG.dates;
+            document.getElementById('display-vol').innerText = CONFIG.vol;
+            document.getElementById('labelSat').innerText = CONFIG.satDate;
+            document.getElementById('labelSun').innerText = CONFIG.sunDate;
+            
+            const evergreenHook = document.getElementById('evergreen-chapters-hook');
+            evergreenHook.innerHTML = '';
+            RESET_CHAPTERS.forEach(chapter => {
+                const section = document.createElement('div');
+                section.innerHTML = `<div class="section-header-row"><h3 class="section-label">${chapter.label}</h3><a href="${chapter.moreUrl}" class="chapter-view-more">View all →</a></div>`;
+                const grid = document.createElement('div');
+                grid.className = 'bento-grid';
+                chapter.shortlist.forEach(item => grid.appendChild(createTile(item, "The Guide")));
+                section.appendChild(grid);
+                evergreenHook.appendChild(section);
+            });
+
+
+            if (HAS_EVENTS_THIS_WEEKEND) {
+                switchView('events');
+                const hero = document.getElementById('hero-slot');
+                hero.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.85)), url('${EVENT_DATA.hero.image}')`;
+                document.getElementById('hero-title').innerText = EVENT_DATA.hero.title;
+                document.getElementById('hero-desc').innerText = EVENT_DATA.hero.shortDesc;
+                document.getElementById('hero-timeline-marker').innerText = EVENT_DATA.hero.dateLabel;
+                hero.onclick = () => openDetail(EVENT_DATA.hero, "The Big One");
+
+
+                const eGrid = document.getElementById('event-grid-hook');
+                eGrid.innerHTML = '';
+                EVENT_DATA.shortlist.forEach(item => eGrid.appendChild(createTile(item, "Shortlist")));
+                
+                document.getElementById('discovery-portal').style.display = 'block';
+                document.getElementById('back-to-events-btn').style.display = 'block';
+            } else {
+                switchView('evergreen');
+                document.getElementById('discovery-portal').style.display = 'none';
+                document.getElementById('back-to-events-btn').style.display = 'none';
+                document.getElementById('evergreen-title').innerText = "The Gentle Reset.";
+                document.getElementById('evergreen-body').innerText = "A quiet weekend in the hills, but it doesn't have to be. We've curated a slow reset for you.";
+            }
+
+
+            document.getElementById('insider-name').innerText = CONFIG.insider.name;
+            document.getElementById('insider-slot').onclick = () => openDetail(CONFIG.insider, "Insider Pick");
+            document.getElementById('market-btn').onclick = () => openDetail({ title: "Market Guide", ...CONFIG.diary.markets }, "Social Diary");
+            document.getElementById('horizon-btn').onclick = () => openDetail({ title: "The Forward Slate", ...CONFIG.diary.horizon }, "Social Diary");
+            document.getElementById('patronage-slot').onclick = () => openDetail({ title: "The Patronage", ...CONFIG.patronage }, "Backers");
+
+
+            fetchLiveWeather();
+        }
+
+
+        function switchView(view) {
+            const ev = document.getElementById('events-view');
+            const qv = document.getElementById('evergreen-view');
+            if(view === 'events') {
+                ev.classList.add('active');
+                qv.classList.remove('active');
+            } else {
+                qv.classList.add('active');
+                ev.classList.remove('active');
+            }
+            window.scrollTo(0, 0);
+        }
+
+
+        function createTile(item, meta) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            const timelineHtml = item.dateLabel ? `<div class="tile-timeline"><span>●</span> ${item.dateLabel}</div>` : '';
+            if(item.image) {
+                tile.style.backgroundImage = `linear-gradient(transparent, rgba(0,0,0,0.4)), url('${item.image}')`;
+                tile.innerHTML = `<div class="tile-overlay"><h4>${item.title}</h4><p>${item.summary}</p>${timelineHtml}</div>`;
+            } else {
+                tile.style.backgroundColor = item.color || 'var(--cream)';
+                tile.innerHTML = `<div style="font-size: 28px;">${item.icon || '📍'}</div><div><h4>${item.title}</h4><p>${item.summary}</p>${timelineHtml}</div>`;
+            }
+            tile.onclick = () => openDetail(item, meta);
+            return tile;
+        }
+
+
+        async function fetchLiveWeather() {
+            const prompt = `Weather for Bowral, NSW for ${CONFIG.satDate} and ${CONFIG.sunDate} 2026. JSON: {sat: {temp, emoji, vibe}, sun: {temp, emoji, vibe}}.`;
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], tools: [{ "google_search": {} }], generationConfig: { responseMimeType: "application/json" } })
+                });
+                const result = await response.json();
+                const data = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim());
+                updateWeatherUI(data);
+            } catch (err) {
+                updateWeatherUI({ sat: { temp: "21", emoji: "⛅", vibe: "Mild and misty." }, sun: { temp: "19", emoji: "☀️", vibe: "Crisp and clear." } });
+            }
+        }
+
+
+        function updateWeatherUI(data) {
+            document.getElementById('weatherSat').innerHTML = `<div class="day-label">${CONFIG.satDate}</div><div class="temp-row"><span class="temp-val">${data.sat.temp}°</span><span style="font-size:24px">${data.sat.emoji}</span></div><div class="vibe-note">${data.sat.vibe}</div>`;
+            document.getElementById('weatherSun').innerHTML = `<div class="day-label">${CONFIG.sunDate}</div><div class="temp-row"><span class="temp-val">${data.sun.temp}°</span><span style="font-size:24px">${data.sun.emoji}</span></div><div class="vibe-note">${data.sun.vibe}</div>`;
+        }
+
+
+        function openDetail(data, meta) {
+            document.getElementById('modalTitle').innerText = data.title;
+            document.getElementById('modalMeta').innerText = meta;
+            document.getElementById('modalBody').innerText = data.body || data.fullBody;
+            document.getElementById('modalDate').innerText = data.date || '--';
+            document.getElementById('modalTime').innerText = data.time || '--';
+            document.getElementById('modalLoc').innerText = data.loc || '--';
+            document.getElementById('modalLink').href = data.url || '#';
+            const knowList = document.getElementById('modalKnow');
+            knowList.innerHTML = '';
+            (data.know || []).forEach(item => { const li = document.createElement('li'); li.innerText = item; knowList.appendChild(li); });
+            document.getElementById('detailModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; 
+        }
+
+
+        function closeDetail() { document.getElementById('detailModal').style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+
+        // Preference Logic
+        function openPreferences() { document.getElementById('prefModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+        function closePreferences() { document.getElementById('prefModal').style.display = 'none'; document.body.style.overflow = 'auto'; }
+        function savePrefs() { closePreferences(); }
+        function handleSignup() { alert("Welcome to the Circle. Check your inbox."); }
+
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
