@@ -1,0 +1,24 @@
+# 🌲 The Highlands Weekender
+An interactive, high-end weekly newsletter experience for the Southern Highlands community.
+
+## 🚀 The Vision
+This project replaces the "cookie-cutter" newsletter experience with a bespoke, interactive web app. It’s designed for the local community to find events and "reset" for the weekend with an earthy, premium aesthetic.
+
+## 🛠 Tech Stack
+- **Frontend:** Custom HTML/CSS/JS (Bento-box layout)
+- **Hosting:** Vercel (Auto-deployed from GitHub)
+- **Audience Management:** beehiiv (Delivery & Growth engine)
+- **Automation:** AI-driven scraping and content generation (In progress)
+
+## 🤖 Automation Pipeline (The Techery Way)
+1. **Scrape:** AI agents monitor Southern Highlands event calendars.
+2. **Synthesize:** Gemini/LLM formats the raw data into the `EVENT_DATA` object.
+3. **Deploy:** GitHub Actions/API pushes the update to `index.html`.
+4. **Notify:** beehiiv sends a "Teaser" email to subscribers with a link to this site.
+
+## 📁 File Structure
+- `index.html`: The main interactive engine (formerly highlandshtml.html).
+- `README.md`: Project documentation.
+
+---
+*Created and maintained by The Techery Southern Highlands.*
